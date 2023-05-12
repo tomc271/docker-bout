@@ -12,7 +12,7 @@ read DOCKER_NAME
 HOSTNAME=`hostname -s`
 DOCKERFILE="$DOCKER_NAME.dkr"
 IMAGE_NAME="$DOCKER_NAME-img"
-SCR_NAME="/scr_eris/jleddy/projects/BOUT-docker/"
+SCR_NAME="."
 # CONTRIB_DIR="/opt/contrib"
 #
 # if [ ! -d ./contrib ]; then
