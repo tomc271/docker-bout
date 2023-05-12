@@ -4,23 +4,21 @@
 # Build example: sudo docker build -t boutproject/bout-next:a4f453c -f bout-next.dkr .
 #  
 # ================================================================================
-FROM centos:centos7
+FROM ubuntu:22.04
 MAINTAINER Jarrod Leddy "jleddy@txcorp.com"
 
 # ----------------------------------------------------------------
 # Convenient network/system tools, python, dependencies
 # ----------------------------------------------------------------
-RUN yum install -y emacs-nox vim nano git gfortran g++ gcc \
- mpich fftw-devel hdf5 blas-devel lapack-devel cmake zlib-devel hdf5-devel sudo \
- && yum clean all \
- && rm -rf /var/cache/yum
+RUN apt-get update
+RUN apt-get install -y git g++ gcc wget\
+ libmpich-dev libfftw3-dev libnetcdf-c++4-dev make libhdf5-mpich-dev libblas-dev liblapack-dev cmake zlib1g \
+ && apt-get clean
 
 # ----------------------------------------------------------------
 # Python
 # ----------------------------------------------------------------
-RUN yum install -y https://centos7.iuscommunity.org/ius-release.rpm \
-    && yum install -y python36u python36u-pip python36u-devel \
-    && ln -s /usr/bin/python3.6 /usr/bin/python3 \
+RUN apt-get install -y python3 python3-pip \
     && python3 -m pip install numpy scipy netcdf4 matplotlib 
 
 # ----------------------------------------------------------------
@@ -30,7 +28,7 @@ RUN yum install -y https://centos7.iuscommunity.org/ius-release.rpm \
 #####################
 # Install mpich
 WORKDIR /
-RUN yum install -y wget make file gcc-c++ \
+RUN apt-get install -y wget make file gcc-c++ \
  && wget https://www.mpich.org/static/tarballs/3.2.1/mpich-3.2.1.tar.gz \
  && tar -xzvf mpich-3.2.1.tar.gz \
  && rm mpich-3.2.1.tar.gz \
@@ -70,7 +68,7 @@ RUN wget https://computation.llnl.gov/projects/sundials/download/sundials-2.7.0.
 # Install PETSC
 
 WORKDIR /
-RUN yum install -y bison flex \
+RUN apt-get install -y bison flex \
  && wget http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.9.3.tar.gz \
  && tar -xvzf petsc-lite-3.9.3.tar.gz \
  && cd petsc-3.9.3/ \
@@ -109,7 +107,7 @@ ENV SLEPC_DIR=/slepc-3.9.2
 #####################
 # Install NETCDF
 WORKDIR /
-RUN yum install -y zlib-devel hdf5-devel \
+RUN apt-get install -y zlib1g libhdf5-mpich-dev \
  && wget https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-4.6.1.tar.gz \
  && tar -xzvf netcdf-4.6.1.tar.gz \
  && rm netcdf-4.6.1.tar.gz \
@@ -144,8 +142,8 @@ RUN python3 -m pip install cython ipython
 # ----------------------------------------------------------------
 # configure and build BOUT++ source code
 RUN useradd -ms /bin/bash boutuser \
- && echo -e "boutforever\nboutforever" | passwd boutuser \
- && usermod -aG wheel boutuser
+ && echo 'boutuser:boutforever' | chpasswd \
+ && usermod -aG sudo boutuser
 
 USER boutuser
 WORKDIR /home/boutuser
