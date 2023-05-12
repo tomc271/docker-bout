@@ -58,9 +58,9 @@ RUN wget https://github.com/LLNL/sundials/releases/download/v5.4.0/sundials-5.4.
 WORKDIR /
 RUN apt-get install -y bison flex \
  && wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-3.17.5.tar.gz \
- && tar -xvzf petsc-3.17.5.tar.gz \
- && cd petsc-3.17.5/ \
- && ./configure \
+ && tar -xvzf petsc-3.17.5.tar.gz
+WORKDIR petsc-3.17.5
+RUN ./configure \
   --with-mpi=yes \
   --with-precision=double \
   --with-scalar-type=real \
