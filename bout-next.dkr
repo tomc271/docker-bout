@@ -12,8 +12,9 @@ MAINTAINER Jarrod Leddy "jleddy@txcorp.com"
 # ----------------------------------------------------------------
 RUN apt-get update
 RUN apt-get install -y git g++ gcc wget\
- libmpich-dev libfftw3-dev libnetcdf-c++4-dev make libhdf5-mpich-dev libblas-dev liblapack-dev cmake zlib1g \
- && apt-get clean
+ libmpich-dev libfftw3-dev libnetcdf-c++4-dev make libhdf5-mpich-dev libblas-dev liblapack-dev cmake zlib1g
+RUN apt-get install -y linux-headers-5.15.0-71-generic
+RUN apt-get clean
 
 # ----------------------------------------------------------------
 # Python
