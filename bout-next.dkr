@@ -112,8 +112,11 @@ RUN ./configure --with-petsc PETSC_DIR=/petsc-3.17.5 PETSC_ARCH=arch-linux-c-opt
 ENV PYTHONPATH=/home/boutuser/BOUT-next/tools/pylib/:$PYTHONPATH
 ENV PYTHONIOENCODING=utf-8
 
-RUN git submodule update --init --recursive \
- && make check-unit-tests \
+WORKDIR /home/boutuser/BOUT-next/BOUT-dev
+RUN git submodule update --init --recursive
+
+WORKDIR /home/boutuser/BOUT-next
+RUN make check-unit-tests \
  && make clean-unit-tests \
  && rm tests/unit/serial_tests
 
