@@ -84,34 +84,6 @@ ENV PETSC_DIR=/petsc-3.17.5/
 ENV PETSC_ARCH=arch-linux-c-opt
 
 #####################
-# Install NETCDF
-WORKDIR /
-RUN apt-get install -y zlib1g libhdf5-mpich-dev \
- && wget https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-4.6.1.tar.gz \
- && tar -xzvf netcdf-4.6.1.tar.gz \
- && rm netcdf-4.6.1.tar.gz \
- && cd /netcdf-4.6.1/ \
- && ./configure --prefix=/usr/local --disable-dap --enable-parallel --enable-shared \
- && make \
- && make install \
- && cd / \
- && rm -r netcdf-4.6.1
-
-#####################
-# Install NETCDF-cxx
-WORKDIR /
-
-RUN wget https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-cxx4-4.3.0.tar.gz \
- && tar -xzvf netcdf-cxx4-4.3.0.tar.gz \
- && rm netcdf-cxx4-4.3.0.tar.gz \
- && cd netcdf-cxx4-4.3.0/ \
- && ./configure --prefix=/usr/local --enable-shared \
- && make \
- && make install \
- && cd / \
- && rm -r netcdf-cxx4-4.3.0
-
-####################
 # Cython
 
 RUN python3 -m pip install cython ipython
