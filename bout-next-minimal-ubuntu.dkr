@@ -1,0 +1,80 @@
+# ================================================================================
+#             Dockerfile to setup build environment for BOUT-next build
+#
+# Build example:
+#  sudo docker build -t boutproject/bout-next:9f4c663-minimal-ubuntu -f bout-next-minimal-ubuntu.dkr .
+#
+# 
+# Run example:
+#
+# To mount a local directory inside the container: 
+# $ mkdir shared
+# $ sudo docker run --rm -it -v "$(pwd)"/shared:/home/boutuser/bout-img-shared bout-next-minimal-ubuntu
+#
+# To connect your display to the container: 
+# $ sudo docker run --rm -it -e DISPLAY -v $HOME/.Xauthority:/home/boutuser/.Xauthority bout-next-minimal-ubuntu
+# 
+# ================================================================================
+
+FROM ubuntu:22.04
+MAINTAINER Tom Chapman "tom.chapman@york.ac.uk"
+
+# ----------------------------------------------------------------
+# Convenient network/system tools, python, dependencies
+# ----------------------------------------------------------------
+
+RUN apt-get update --fix-missing
+RUN apt-get -y install git cmake sudo cmake python3 python3-numpy python3-pip g++ mpich wget m4
+RUN apt-get -y install libmpich-dev libfftw3-dev libblas-dev liblapack-dev libhdf5-dev libnetcdf-c++4-dev
+RUN apt-get clean
+
+# ----------------------------------------------------------------
+# Python
+# ----------------------------------------------------------------
+RUN python3 -m pip install numpy scipy netcdf4 matplotlib xbout
+
+# ----------------------------------------------------------------
+# Get BOUT++ dependencies
+# ----------------------------------------------------------------
+
+#####################
+# Install NETCDF
+
+WORKDIR /
+RUN apt-get install -y zlib1g libhdf5-mpich-dev
+RUN wget https://downloads.unidata.ucar.edu/netcdf-c/4.9.2/netcdf-c-4.9.2.tar.gz
+RUN tar -xzvf netcdf-c-4.9.2.tar.gz
+RUN rm netcdf-c-4.9.2.tar.gz
+WORKDIR /netcdf-c-4.9.2
+RUN ./configure --prefix=/usr/local --disable-dap --enable-parallel --enable-shared --disable-libxml2 --disable-hdf5
+RUN make
+RUN make install
+WORKDIR /
+RUN rm -r netcdf-c-4.9.2
+
+#####################
+
+# ----------------------------------------------------------------
+# Build and install BOUT++
+# ----------------------------------------------------------------
+
+# configure and build BOUT++ source code
+RUN useradd -ms /bin/bash boutuser \
+ && echo 'boutuser:boutforever' | chpasswd \
+ && usermod -aG sudo boutuser
+
+USER boutuser
+WORKDIR /home/boutuser/BOUT-next
+
+RUN git clone -b next --depth 1 https://github.com/boutproject/BOUT-dev.git
+RUN chown boutuser /home/boutuser/BOUT-next
+
+RUN cmake -S BOUT-dev -B build_bout -DBOUT_DOWNLOAD_NETCDF_CXX4=ON
+RUN cmake --build build_bout -j 4
+
+ENV PYTHONPATH=/home/boutuser/BOUT-next/build_bout/tools/pylib:$PYTHONPATH
+
+#####################
+# Make common folder for moving data to/from host
+# WORKDIR /home/boutuser
+# RUN mkdir bout-img-shared
