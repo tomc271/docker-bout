@@ -37,22 +37,7 @@ RUN python3 -m pip install numpy scipy netcdf4 matplotlib xbout
 # Get BOUT++ dependencies
 # ----------------------------------------------------------------
 
-#####################
-# Install NETCDF
-
-WORKDIR /
-RUN apt-get install -y zlib1g libhdf5-mpich-dev
-RUN wget https://downloads.unidata.ucar.edu/netcdf-c/4.9.2/netcdf-c-4.9.2.tar.gz
-RUN tar -xzvf netcdf-c-4.9.2.tar.gz
-RUN rm netcdf-c-4.9.2.tar.gz
-WORKDIR /netcdf-c-4.9.2
-RUN ./configure --prefix=/usr/local --disable-dap --enable-parallel --enable-shared --disable-libxml2 --disable-hdf5
-RUN make
-RUN make install
-WORKDIR /
-RUN rm -r netcdf-c-4.9.2
-
-#####################
+RUN apt-get -y install netcdf-bin libnetcdf-dev
 
 # ----------------------------------------------------------------
 # Build and install BOUT++
